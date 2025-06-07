@@ -1,12 +1,18 @@
 ﻿# GI-cutscenes
 
+### Branched for personal usage because the original project severely lack flexibility.
+
+My long term plan is to eventually expand this in a way so that enthusiasts will get more options for a high quality encode for yourself with all the `ffmpeg` parameters at your disposal, or with vaporsynth. Things are hardcoded for now since it's just me who's using it, but if you want to make your own build simply follow build instruction below. If you have any questions, let me know in issue or ask in Discord at `@lunarmint`. I'm not the author of the code though, so many parts are still convoluted to me, mostly the `.usm` extraction algorithm.
+
+---
+
 A command line program playing with the cutscenes files (USM) from Genshin Impact.
 
 Able to extract the USM files, decrypt the tracks and convert them into readable formats, then merge them into a single MKV file.
 The final MKV file can then be played like a small movie, with the subtitles correctly formatted like in the game.
 Sometimes, subtitles can be desynchronized with the audio, but that's also the case in game (and not this program's fault).
 
-#### Cutscenes from version 1.0 to 5.1 can be decrypted.
+#### Cutscenes from version 1.0 to 5.6 can be decrypted.
 
 _Also includes CBT3, which has the same files than the live version_
 
@@ -33,7 +39,7 @@ As a first C# program, I thought it would be a good idea to rewrite it. I haven'
 
 ## Build
 
-This program uses the .NET framework version 6.0, so you will need the .NET SDK.
+This program uses the .NET framework version 8.0, so you will need the .NET SDK.
 You can open this project in Visual Studio 2022 and build the solution, or use the dotnet CLI : `dotnet publish -c Release -r [platform]`.
 Otherwise, you can also modify the script `build-all.sh` with the desired runtimes.
 
