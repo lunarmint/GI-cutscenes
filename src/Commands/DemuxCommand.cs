@@ -186,11 +186,10 @@ public class DemuxCommand : Command
             return;
 
         string basename = Path.GetFileNameWithoutExtension(input.Name);
-
+        Directory.CreateDirectory(Path.Combine(output.FullName, basename));
         MergeFiles(output, basename, mkvEngine, includeSubs, audioFormat, audioBitrate, videoFormat, preset, crf, audioLang);
         if (!noCleanup)
             CleanExtractedFiles(output.FullName, basename);
-
         string subsFolderPath = Path.Combine(output.FullName, "Subs");
         if (!noCleanup && Directory.Exists(subsFolderPath))
             Directory.Delete(subsFolderPath, true);
@@ -258,7 +257,7 @@ public class DemuxCommand : Command
             default:
                 throw new ArgumentException("Not implemented");
         }
-
+        
         foreach (string f in Directory.EnumerateFiles(outputPath, $"{basename}_*.wav"))
         {
             if (!int.TryParse(Path.GetFileNameWithoutExtension(f)[^1..], out int language)) // Extracting language number from filename
@@ -269,8 +268,8 @@ public class DemuxCommand : Command
             string[] langs = audioLang.Split(',');
             if (language > 3 || !langs.Contains(MKV.AudioLang[language].Item2))
                 continue;
-
-            merger.AddAudioTrack(f, language);
+            
+            File.Copy(f, Path.Combine(outputPath, basename, Path.GetFileName(f)));
         }
 
         if (subs)
@@ -330,9 +329,12 @@ public class DemuxCommand : Command
                                 else
                                     skipSubs = true;
                             }
+
                             if (!skipSubs)
+                            {
                                 merger.AddSubtitlesTrack(subFile, lang);
-                            
+                                File.Copy(subFile, Path.Combine(outputPath, basename, Path.GetFileName(subFile)));
+                            }
                             break;
                         default:
                             throw new Exception(
@@ -370,11 +372,12 @@ public class DemuxCommand : Command
         string basePath = Path.Combine(outputPath, basename);
         // Removing corresponding video file
         if (File.Exists(basePath + ".ivf"))
-            File.Delete(basePath + ".ivf");
+            File.Move(basePath + ".ivf", Path.Combine(outputPath, basename, basename) + ".ivf");
         // Removing audio files
         foreach (string f in Directory.EnumerateFiles(outputPath, $"{basename}_*.hca"))
             File.Delete(f);
         foreach (string f in Directory.EnumerateFiles(outputPath, $"{basename}_*.wav"))
             File.Delete(f);
+        File.Delete(Path.Combine(outputPath, basename + ".mkv"));
     }
 }
