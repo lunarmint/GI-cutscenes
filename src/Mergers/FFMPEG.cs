@@ -42,7 +42,7 @@ namespace GICutscenes.Mergers
             _inputOptions = new List<string>();
             _mapOptions = new List<string>();
             _metadataOptions = new List<string>();
-            _command = " -y -loglevel quiet -nostats";
+            _command = " -y -loglevel error -nostats";
 
         }
 
@@ -59,7 +59,7 @@ namespace GICutscenes.Mergers
             _inputOptions = new List<string>();
             _mapOptions = new List<string>();
             _metadataOptions = new List<string>();
-            _command = " -y -loglevel quiet -nostats";
+            _command = " -y -loglevel error -nostats";
         }
 
         public void AddAttachment(string attachment, string description)
@@ -116,13 +116,39 @@ namespace GICutscenes.Mergers
             if (audioFormat != "copy" && !string.IsNullOrWhiteSpace(audioBitrate))
                 _command += $" -b:a {audioBitrate}";
             videoFormat = string.IsNullOrWhiteSpace(videoFormat) ? "copy" : videoFormat;
-            _command += $" -c:v {videoFormat}";
+            _command += $" -c:v {videoFormat} -pix_fmt yuv420p10le -vf \"scale=out_color_matrix=bt709\"";
+            //-vf ""
             if (videoFormat != "copy" && !string.IsNullOrWhiteSpace(preset))
                 _command += $" -preset {preset}";
             if (videoFormat != "copy" && !string.IsNullOrWhiteSpace(crf))
                 _command += $" -crf {crf}";
+            _command += String.Join("",
+                " -x265-params",
+                " \"",
+                "profile=main10",
+                ":cutree=0",
+                ":deblock=-1,-1",
+                ":no-sao=1",
+                ":tskip=1",
+                ":cbqpoffs=-2",
+                ":qcomp=0.7",
+                ":lookahead-slices=0",
+                ":keyint=300",
+                ":min-keyint=30",
+                ":max-merge=5",
+                ":ref=6",
+                ":bframes=16",
+                ":rd=4",
+                ":psy-rd=1.5",
+                ":psy-rdoq=1.0",
+                ":aq-mode=3",
+                ":aq-strength=0.8",
+                ":colorprim=1",
+                ":colormatrix=1",
+                ":transfer=1",
+                "\"");
             _command += $" \"{_output}\"";
-            //Console.WriteLine(_ffmpeg + _command);
+            Console.WriteLine(_ffmpeg + _command);
             Process process = Process.Start(_ffmpeg, _command);
             process.WaitForExit();
         }
